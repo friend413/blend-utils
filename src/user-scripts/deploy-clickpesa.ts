@@ -36,10 +36,11 @@ async function deployClickPesaPool() {
     };
 
     const usdc_contractId = addressBook.getContractId('USDC');
-    const CPYT = await tryDeployStellarAsset(
-        new Asset('CPYT', 'GA2MSSZKJOU6RNL3EJKH3S5TB5CDYTFQFWRYFGUJVIN5I6AOIRTLUHTO'),
-        adminTxParams
-    );
+    const CPYT = addressBook.getContractId('CPYT');
+    // const CPYT = await tryDeployStellarAsset(
+    //     new Asset('CPYT', 'GA2MSSZKJOU6RNL3EJKH3S5TB5CDYTFQFWRYFGUJVIN5I6AOIRTLUHTO'),
+    //     adminTxParams
+    // );
     const oracle_aggregator = addressBook.getContractId('oracleAggregator');
 
     // ********** Stellar Pool (XLM, USDC) **********//
@@ -72,7 +73,7 @@ async function deployClickPesaPool() {
     await setupReserve(
         stellarPool.contractId(),
         {
-            asset: CPYT.contractId(),
+            asset: CPYT,
             metadata: stellarPoolCpytReserveMetaData,
         },
         adminTxParams
@@ -116,44 +117,44 @@ async function deployClickPesaPool() {
         adminTxParams
     );
 
-    const comet = new CometContract(addressBook.getContractId('comet'));
-    await invokeSorobanOperation(
-        comet.joinPool(
-            BigInt(50000e7),
-            [BigInt(500100e7), BigInt(25000e7)],
-            adminTxParams.account.accountId()
-        ),
-        () => undefined,
-        adminTxParams
-    );
+    // const comet = new CometContract(addressBook.getContractId('comet'));
+    // await invokeSorobanOperation(
+    //     comet.joinPool(
+    //         BigInt(50000e7),
+    //         [BigInt(500100e7), BigInt(25000e7)],
+    //         adminTxParams.account.accountId()
+    //     ),
+    //     () => undefined,
+    //     adminTxParams
+    // );
         
-    const backstop = new BackstopContract(addressBook.getContractId('backstop'));
-    await invokeSorobanOperation(
-        backstop.deposit({
-            from: adminTxParams.account.accountId(),
-            pool_address: stellarPool.contractId(),
-            amount: BigInt(50_000e7),
-        }),
+    // const backstop = new BackstopContract(addressBook.getContractId('backstop'));
+    // await invokeSorobanOperation(
+    //     backstop.deposit({
+    //         from: adminTxParams.account.accountId(),
+    //         pool_address: stellarPool.contractId(),
+    //         amount: BigInt(50_000e7),
+    //     }),
 
-        BackstopContract.parsers.deposit,
-        adminTxParams
-    );
+    //     BackstopContract.parsers.deposit,
+    //     adminTxParams
+    // );
             
-    await invokeSorobanOperation(
-        backstop.updateTokenValue(),
-        BackstopContract.parsers.updateTknVal,
-        adminTxParams
-    );
+    // await invokeSorobanOperation(
+    //     backstop.updateTokenValue(),
+    //     BackstopContract.parsers.updateTknVal,
+    //     adminTxParams
+    // );
 
     await invokeSorobanOperation(stellarPool.setStatus(0), PoolContract.parsers.setStatus, adminTxParams);
-    await invokeSorobanOperation(
-        backstop.addReward({
-            to_add: stellarPool.contractId(),
-            to_remove: stellarPool.contractId(),
-        }),
-        BackstopContract.parsers.addReward,
-        adminTxParams
-    );
+    // await invokeSorobanOperation(
+    //     backstop.addReward({
+    //         to_add: stellarPool.contractId(),
+    //         to_remove: stellarPool.contractId(),
+    //     }),
+    //     BackstopContract.parsers.addReward,
+    //     adminTxParams
+    // );
     console.log('Successfully setup pool backstop\n');
 }
         
